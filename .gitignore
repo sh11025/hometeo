@@ -1,0 +1,24 @@
+# 개발 기록 · 시험용
+작업진행.md
+안티그라비티_프롬프트.md
+test-admin-preview/
+admin/admin-config.js
+test-cafe.hometeo
+tests/
+scratch/
+artifacts/
+
+# 윈도우 · 맥 · 편집기
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/
+
+# 내려받은 결과물 · 작업 파일
+*.zip
+*_작업파일_*.hometeo
+
+# 기타
+node_modules/
+*.log

@@ -1,0 +1,13 @@
+# 홈터를 Render에 '정적 사이트'로 올리는 설정 (Blueprint)
+# Render → New → Blueprint → 이 저장소를 고르면 아래대로 만들어져요.
+# 홈터는 따로 만들(build) 것이 없어서, 폴더를 그대로 내보내요.
+services:
+  - type: web
+    name: hometeo
+    runtime: static
+    buildCommand: echo "no build step"
+    staticPublishPath: ./
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff

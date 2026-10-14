@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>관리자 화면 · 홈터</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232B2A28' stroke-width='2'><rect x='3' y='11' width='18' height='11' rx='2'/><path d='M7 11V7a5 5 0 0 1 10 0v4'/></svg>">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="관리자">
+  <link rel="stylesheet" href="admin.css">
+  <script src="admin-config.js"></script>
+</head>
+<body>
+  <div id="admin-app" class="adm layout-side">
+    <!-- 맨 위 (늘 고정: 홈페이지 보기 · 열쇠 · 도움말) -->
+    <header class="adm-top">
+      <button id="btn-nav-open" class="adm-burger" type="button" aria-label="메뉴 열기" aria-expanded="false">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div class="adm-brand">
+        <span class="adm-symbol" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </span>
+        <strong id="site-name">내 홈페이지</strong>
+        <span class="adm-tag">관리자</span>
+      </div>
+      <nav id="adm-tabs" class="adm-tabs" aria-label="관리자 메뉴"></nav>
+      <div class="adm-top-right">
+        <a id="btn-visit" class="adm-top-btn" href="#" target="_blank" rel="noopener" hidden title="내 홈페이지 열기" aria-label="홈페이지 보기">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          <span>홈페이지 보기</span>
+        </a>
+        <button id="btn-auth" class="adm-top-btn" type="button" title="열쇠 · 비밀번호" aria-label="열쇠">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.2-8.2M17 6l2 2M14.5 8.5l2 2"/></svg>
+          <span>열쇠</span>
+        </button>
+        <button id="btn-help" class="adm-top-btn" type="button" title="도움말" aria-label="도움말">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>도움말</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 홈터에서 연 미리보기 -->
+    <div id="preview-mode-banner" class="adm-banner is-preview" hidden>
+      <span>👀 <b>미리보기예요.</b> 홈터에서 꾸민 관리자 화면을 보여줘요. 여기서 고친 내용은 저장되지 않아요.</span>
+    </div>
+
+    <!-- 지난 모습 미리보기 띠 -->
+    <div id="history-preview-banner" class="adm-banner is-history" hidden>
+      <span id="history-banner-text">📅 <b>지난 모습 미리보기:</b> 이전 기록을 둘러보는 중이에요.</span>
+      <span class="adm-banner-actions">
+        <button id="btn-rollback-apply" class="btn btn-sm btn-primary" type="button">이 모습으로 되돌리기</button>
+        <button id="btn-rollback-cancel" class="btn btn-sm" type="button">미리보기 닫기</button>
+      </span>
+    </div>
+
+    <!-- 시험 모드 띠 (로컬 시험 모드일 때만) -->
+    <div id="test-mode-banner" class="adm-banner is-test" hidden>
+      <span>🧪 <b>시험 모드:</b> 로컬 작업 파일(.hometeo)을 직접 열어 시험하고 있어요.</span>
+      <button id="btn-reopen-test" class="btn btn-sm" type="button">다른 작업 파일 열기</button>
+    </div>
+
+    <div class="adm-body">
+      <!-- 메뉴 (왼쪽 메뉴형 · 한 줄형 · 휴대폰 서랍) -->
+      <nav id="adm-nav" class="adm-nav" aria-label="관리자 메뉴"></nav>
+      <main id="adm-main" class="adm-main">
+        <div id="adm-view" class="adm-view"></div>
+      </main>
+    </div>
+    <div id="nav-scrim" class="nav-scrim" hidden></div>
+
+    <!-- 맨 아래 (늘 고정: 되돌리기 · 다시하기 · 사이트에 반영하기) -->
+    <footer class="admin-bottom">
+      <div class="bottom-left">
+        <button id="btn-undo" class="btn-tool" type="button" title="되돌리기 (Ctrl+Z)" aria-label="되돌리기" disabled>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+          <span>되돌리기</span>
+        </button>
+        <button id="btn-redo" class="btn-tool" type="button" title="다시하기 (Ctrl+Y)" aria-label="다시하기" disabled>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+          <span>다시하기</span>
+        </button>
+        <span id="save-status" class="save-status">불러오는 중…</span>
+      </div>
+      <div class="bottom-right">
+        <button id="btn-publish" class="btn btn-primary btn-publish" type="button">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          사이트에 반영하기
+        </button>
+      </div>
+    </footer>
+
+    <!-- 홈페이지 미리보기 · 어디에 보이나요? -->
+    <div id="where-modal" class="modal-wrap where-wrap" role="dialog" aria-modal="true" aria-labelledby="where-title" hidden>
+      <div class="modal-card where-card">
+        <div class="modal-head">
+          <h2 id="where-title">홈페이지 미리보기</h2>
+          <button class="icon-btn" data-close-where aria-label="닫기">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <p id="where-help" class="where-help" hidden>주황색 테두리가 그 부분이에요.</p>
+        <iframe id="where-frame" class="where-frame" title="홈페이지 미리보기"></iframe>
+      </div>
+    </div>
+
+    <!-- 열쇠 및 비밀번호 인증 모달 -->
+    <div id="auth-modal" class="modal-wrap" role="dialog" aria-modal="true" hidden>
+      <div class="modal-card auth-card">
+        <!-- 모드 1: 새 열쇠 등록 -->
+        <div id="auth-setup-view">
+          <div class="modal-head">
+            <h2>🔑 관리자 열쇠 등록</h2>
+          </div>
+          <div class="modal-body">
+            <p class="auth-guide">만든 사람에게 받은 GitHub 열쇠(토큰)를 넣고, 이 기기에서 사용할 관리자 비밀번호를 정해주세요.<br><small>열쇠는 비밀번호로 안전하게 암호화되어 이 기기에만 보관돼요.</small></p>
+            <div class="form-row">
+              <label for="auth-token-input"><b>관리자 열쇠 (GitHub 토큰)</b></label>
+              <input id="auth-token-input" type="password" class="input" placeholder="ghp_... 또는 github_pat_..." autocomplete="off">
+            </div>
+            <div class="form-row">
+              <label for="auth-pin-input"><b>관리자 비밀번호 정하기</b> <small>(4자 이상)</small></label>
+              <input id="auth-pin-input" type="password" class="input" placeholder="비밀번호 4자 이상" autocomplete="new-password">
+            </div>
+            <div class="form-row">
+              <label for="auth-pin-confirm"><b>비밀번호 확인</b></label>
+              <input id="auth-pin-confirm" type="password" class="input" placeholder="비밀번호 다시 입력" autocomplete="new-password">
+            </div>
+            <div id="auth-setup-error" class="auth-error-msg" hidden></div>
+          </div>
+          <div class="modal-foot">
+            <button id="btn-auth-skip" class="btn btn-ghost" type="button" hidden>다음에 하기 (시험 모드)</button>
+            <span class="spacer"></span>
+            <button id="btn-auth-save" class="btn btn-primary" type="button">열쇠 확인 및 잠금</button>
+          </div>
+        </div>
+
+        <!-- 모드 2: 기존 열쇠 비밀번호 잠금 해제 -->
+        <div id="auth-unlock-view" hidden>
+          <div class="modal-head">
+            <h2>🔒 관리자 화면 열기</h2>
+          </div>
+          <div class="modal-body">
+            <p class="auth-guide">이 기기에 저장된 열쇠를 풀기 위해 관리자 비밀번호를 입력해 주세요.</p>
+            <div class="form-row">
+              <label for="auth-unlock-input"><b>관리자 비밀번호</b></label>
+              <input id="auth-unlock-input" type="password" class="input" placeholder="비밀번호 입력" autocomplete="current-password">
+            </div>
+            <div id="auth-unlock-error" class="auth-error-msg" hidden></div>
+          </div>
+          <div class="modal-foot">
+            <button id="btn-auth-reset" class="btn btn-ghost btn-danger-text" type="button">이 기기에서 열쇠 지우기</button>
+            <span class="spacer"></span>
+            <button id="btn-auth-unlock" class="btn btn-primary" type="button">열기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 사이트에 반영하기 모달 (바뀐 것 요약 + 고친 사람) -->
+    <div id="publish-modal" class="modal-wrap" role="dialog" aria-modal="true" hidden>
+      <div class="modal-card publish-card">
+        <div class="modal-head">
+          <h2>🚀 사이트에 반영하기</h2>
+          <button class="icon-btn" data-close-publish aria-label="닫기">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="publish-help">확인하면 홈페이지 보관함에 새 기록으로 한 번에 올라가요.</p>
+          <div class="form-row">
+            <label><b>바뀐 것 요약</b></label>
+            <div id="publish-diff-box" class="diff-summary-box">
+              <ul id="publish-diff-list" class="diff-list"></ul>
+            </div>
+          </div>
+          <div id="publish-checks-box" class="publish-checks" hidden>
+            <label><b>반영하기 전에 한 번 봐 주세요</b> <small>(그대로 반영해도 돼요)</small></label>
+            <ul id="publish-checks"></ul>
+          </div>
+          <div class="form-row">
+            <label for="publish-name-input"><b>이번 반영 이름</b> <small>(골라서 · 예: 가을 메뉴 · 지난 모습에 보여요)</small></label>
+            <input id="publish-name-input" type="text" class="input" placeholder="예: 가을 메뉴로 바꿈" maxlength="40">
+          </div>
+          <div class="form-row">
+            <label for="publish-author-input"><b>고친 사람 이름</b> <small>(보관함 기록에 남겨요)</small></label>
+            <input id="publish-author-input" type="text" class="input" placeholder="예: 홍길동">
+          </div>
+          <div id="publish-error-msg" class="auth-error-msg" hidden></div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn btn-ghost" data-close-publish type="button">취소</button>
+          <span class="spacer"></span>
+          <button id="btn-publish-confirm" class="btn btn-primary" type="button">확인하고 지금 반영하기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 반영 완료 축하 모달 -->
+    <div id="publish-success-modal" class="modal-wrap" role="dialog" aria-modal="true" hidden>
+      <div class="modal-card success-card">
+        <div class="modal-body" style="text-align: center; padding: 32px 20px;">
+          <div style="font-size: 42px; margin-bottom: 12px;">🎉</div>
+          <h2 style="font-size: 20px; margin-bottom: 8px;">사이트에 반영 중이에요!</h2>
+          <p style="font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 24px;">
+            GitHub 보관함에 새 기록이 정상적으로 올라갔어요.<br>
+            <b>1~2분 뒤</b> 실제 인터넷 사이트에 새로운 모습이 나타나요.
+          </p>
+          <div style="display: flex; gap: 10px; justify-content: center;">
+            <a id="btn-success-visit" class="btn btn-primary" href="#" target="_blank" rel="noopener">내 사이트 열기</a>
+            <button id="btn-success-close" class="btn btn-ghost" type="button">닫기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 지난 모습 목록 모달 -->
+    <div id="history-modal" class="modal-wrap" role="dialog" aria-modal="true" hidden>
+      <div class="modal-card history-card">
+        <div class="modal-head">
+          <h2>📅 지난 모습 (최근 30개 기록)</h2>
+          <button class="icon-btn" data-close-history aria-label="닫기">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="history-help">기록을 누르면 그때의 사이트 모습을 미리 볼 수 있어요.</p>
+          <div id="history-list-box" class="history-list-box">
+            <div id="history-loading" style="text-align: center; padding: 30px; color: #888;">지난 기록을 불러오는 중…</div>
+            <ul id="history-items" class="history-items" hidden></ul>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <span class="spacer"></span>
+          <button class="btn btn-ghost" data-close-history type="button">닫기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 도움말 모달 -->
+    <div id="help-modal" class="modal-wrap" role="dialog" aria-modal="true" aria-labelledby="help-title" hidden>
+      <div class="modal-card help-card">
+        <div class="modal-head">
+          <h2 id="help-title">📖 관리자 화면 도움말</h2>
+          <button class="icon-btn" data-close-help aria-label="닫기">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="modal-body help-body">
+          <div class="help-section">
+            <h3>🔑 처음 열쇠 넣기</h3>
+            <p>홈페이지를 만든 사람에게 받은 <b>관리자 열쇠</b>와 내가 쓸 <b>비밀번호(4자 이상)</b>를 넣으면 안전하게 잠가 보관해요. 다음부터는 비밀번호만 넣으면 편하게 열려요.</p>
+          </div>
+          <div class="help-section">
+            <h3>✏️ 글·사진 고치기</h3>
+            <p>왼쪽(휴대폰은 ≡ 버튼) 메뉴에서 페이지를 고르면, 고칠 수 있는 칸이 차례대로 나와요. 칸에 적고 다른 곳을 누르면 바로 이 기기에 임시 저장돼요. 사진은 <b>사진 바꾸기</b>를 눌러요. 각 묶음의 <b>어디에 보이나요?</b>를 누르면 홈페이지에서 그 부분을 보여줘요.</p>
+          </div>
+          <div class="help-section">
+            <h3>🚀 사이트에 반영하기</h3>
+            <p>고친 내용을 손님들에게 보여주려면 맨 위 오른쪽 <b>사이트에 반영하기</b> 버튼(맨 아래 오른쪽)을 눌러주세요. Render 등의 인터넷 사이트가 새 화면을 만드는 데 <b>1~2분 정도</b> 걸릴 수 있어요.</p>
+          </div>
+          <div class="help-section">
+            <h3>⏪ 지난 모습으로 되돌리기</h3>
+            <p>실수로 잘못 고쳤을 때는 메뉴의 <b>지난 모습</b>을 눌러보세요. 이전에 저장된 기록(최대 30개) 중 원하는 시점을 골라 언제든 안전하게 되돌릴 수 있어요.</p>
+          </div>
+          <div class="help-section">
+            <h3>⚠️ 다른 사람이 먼저 고쳤다고 나올 때</h3>
+            <p>다른 컴퓨터나 사람이 먼저 새 내용을 올렸을 때는 내용이 엉키지 않도록 알려줘요. 화면을 새로고침하여 최신 내용을 먼저 확인한 뒤 다시 고쳐주세요.</p>
+          </div>
+          <div class="help-section">
+            <h3>⏳ 열쇠 기간이 끝났을 때</h3>
+            <p>열쇠가 맞지 않거나 유효기간이 끝났다는 안내가 나오면, 홈페이지를 만든 사람에게 새 열쇠를 만들어 달라고 요청해 주세요.</p>
+          </div>
+          <div class="help-section help-section-reset">
+            <h3>🔒 비밀번호를 잊으셨나요?</h3>
+            <p>이 기기에 저장된 열쇠를 지우고 처음부터 다시 등록할 수 있어요. 지운 뒤에는 홈페이지를 만든 사람에게 열쇠를 다시 받아야 해요.</p>
+            <button id="btn-help-reset-auth" class="btn btn-outline-danger" type="button">이 기기의 열쇠 지우고 다시 넣기</button>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <span class="spacer"></span>
+          <button class="btn btn-ghost" data-close-help type="button">닫기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 로딩 오버레이 -->
+    <div id="loading-overlay" class="loading-overlay">
+      <div class="loading-card">
+        <div class="loading-spinner" aria-hidden="true"></div>
+        <h2>사이트를 불러오는 중…</h2>
+        <p class="loading-desc">보관함에서 최신 홈페이지 내용(project.hometeo)을 읽어오고 있어요.</p>
+      </div>
+    </div>
+
+    <!-- 에러 오버레이 -->
+    <div id="error-overlay" class="error-overlay" hidden>
+      <div class="error-card">
+        <div class="error-icon" aria-hidden="true">⚠️</div>
+        <h2 id="error-title">사이트를 불러오지 못했어요</h2>
+        <p id="error-desc" class="error-desc">보관함을 찾을 수 없거나 연결 상태가 원활하지 않아요.</p>
+        <div class="error-actions">
+          <button id="btn-retry" class="btn btn-primary" type="button">다시 시도</button>
+          <button id="btn-open-file-test" class="btn" type="button">작업 파일(.hometeo) 직접 열기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 토스트 메시지 -->
+    <div id="admin-toast" class="admin-toast" aria-live="polite"></div>
+
+    <!-- 숨김 파일 인풋 -->
+    <input id="file-input-hometeo" type="file" accept=".hometeo,application/json" hidden>
+    <input id="file-input-image" type="file" accept="image/*" hidden>
+    <input id="file-input-video" type="file" accept="video/mp4,video/webm,video/*" hidden>
+  </div>
+
+  <!-- 홈터 코어 및 관리자 스크립트 로드
+       로컬 개발(dev: true) 또는 홈터의 '관리자 화면 미리보기'(?preview)로 열 때만 '../js/'에서 읽어요 -->
+  <script>
+    (function () {
+      var cores = ['theme.js', 'blocks.js', 'block-styles.js', 'page-export.js', 'site-build.js', 'history.js', 'zip.js', 'admin-ui.js', 'qrcode.js'];
+      var isPreview = /[?&]preview(=|&|$)/.test(location.search);
+      var isLocalDev = isPreview || Boolean(window.ADMIN_CONFIG && window.ADMIN_CONFIG.dev === true);
+      var prefix = isLocalDev ? '../js/' : '';
+      cores.forEach(function (file) {
+        document.write('<script src="' + prefix + file + '"><\/script>');
+      });
+      document.write('<script src="admin.js"><\/script>');
+    })();
+  </script>
+</body>
+</html>

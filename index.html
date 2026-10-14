@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>홈터 · 홈페이지를 짓는 터</title>
+  <meta name="description" content="블록을 끌어다 칸에 맞춰 붙이면 홈페이지가 만들어지는 도구">
+  <link rel="icon" type="image/svg+xml" href="assets/hometeo-symbol.svg">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 맨 위 막대 -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="file-menu-wrap">
+        <!-- 로고와 이름을 누르면 파일 메뉴가 열려요 -->
+        <button id="btn-file-menu" class="brand-btn" aria-haspopup="true" aria-expanded="false" title="파일 메뉴 (저장 · 불러오기 · 내려받기 · 견본)">
+          <img src="assets/hometeo-symbol.svg" alt="" width="28" height="28">
+          <span class="brand-name">홈터</span>
+          <svg class="brand-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <ul id="file-menu" class="file-menu" role="menu" hidden>
+          <li><button data-file="save" role="menuitem">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h8V3M8 21v-7h8v7"/></svg>
+            <span><b>작업 파일로 저장</b><small>다른 컴퓨터에서 이어서 하거나 백업할 때 · Ctrl+S</small></span></button></li>
+          <li><button data-file="open" role="menuitem">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h6l2 2h10v10H3z"/></svg>
+            <span><b>작업 파일 불러오기</b><small>저장해 둔 .hometeo 파일 열기</small></span></button></li>
+          <li class="sep"></li>
+          <li><button data-file="download" role="menuitem">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+            <span><b>내려받기</b><small>완성된 홈페이지 (사장님용 관리자 화면도 함께 받을 수 있어요)</small></span></button></li>
+          <li><button data-file="check" role="menuitem">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>
+            <span><b>빠뜨린 것 점검</b><small>견본 글 · 빈 링크 · 안 보이는 글자 찾기</small></span></button></li>
+          <li class="sep"></li>
+          <li><button data-file="template" role="menuitem">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+            <span><b>견본으로 시작하기</b><small>카페 · 병원 · 학원 · 개인 소개</small></span></button></li>
+          <li><button data-file="new" role="menuitem">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            <span><b>새로 시작하기</b><small>빈 페이지로 (되돌리기 할 수 있어요)</small></span></button></li>
+          <li class="sep"></li>
+          <li><button data-file="guide" role="menuitem">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg>
+            <span><b>도움말</b><small>사용 안내 · 처음 길잡이 · 내려받은 다음엔? · 로그인 연결</small></span></button></li>
+          <li class="version">홈터 1.0</li>
+        </ul>
+      </div>
+      <span class="save-status" id="save-status" data-state="saving">불러오는 중…</span>
+    </div>
+
+    <div class="history">
+      <button id="btn-undo" class="tool-btn" title="되돌리기 (Ctrl+Z)" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>
+        되돌리기
+      </button>
+      <button id="btn-redo" class="tool-btn" title="다시하기 (Ctrl+Y)" disabled>
+        다시하기
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></svg>
+      </button>
+    </div>
+
+    <div class="topbar-right">
+      <div class="device-switch" id="device-switch" role="group" aria-label="화면 크기">
+        <button data-device="pc" title="PC 화면으로 보기">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+          PC
+        </button>
+        <button data-device="phone" title="휴대폰 화면으로 보기">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
+          휴대폰
+        </button>
+        <button data-device="both" title="PC 화면에서 고치면서 휴대폰 모습도 나란히 보기">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="13" height="10" rx="1.5"/><rect x="17" y="7" width="5" height="11" rx="1"/><path d="M6 19h5"/></svg>
+          나란히
+        </button>
+      </div>
+      <button id="btn-preview" class="tool-btn" title="편집 도구 없이 실제 홈페이지처럼 새 탭에서 열어요">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
+        새 탭 미리보기
+      </button>
+      <button id="btn-download" class="tool-btn primary" title="완성된 홈페이지를 압축파일(zip)로 내려받아요">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+        내려받기
+      </button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <!-- 가운데: 페이지 -->
+    <section class="stage" id="stage" aria-label="페이지">
+      <div class="page-bar" id="page-bar"></div>
+      <div class="device-label" id="device-label"></div>
+      <div class="paper ib-page" id="paper">
+        <div class="ib-frame">
+          <div class="ib-side" id="side-slot" hidden></div>
+          <div class="ib-body" id="page"></div>
+        </div>
+        <div class="float-layer" id="float-layer"></div>
+      </div>
+    </section>
+
+    <!-- 가운데: 사이트 지도 (사이트 지도 버튼을 누르면 페이지 대신 보여요) -->
+    <section class="sitemap" id="sitemap" aria-label="사이트 지도" hidden></section>
+
+    <!-- 오른쪽: 설정 -->
+    <!-- PC와 휴대폰 나란히: 오른쪽은 휴대폰 화면 편집기 (여기서도 바로 고쳐요) -->
+    <aside class="phone-side" id="phone-side" aria-label="휴대폰 화면 편집기" hidden>
+      <div class="phone-side-head"><b>휴대폰 화면</b><small>여기서도 두 번 눌러 고쳐요 · 설정은 오른쪽 칸에서</small><em class="pane-zoom"></em><button class="icon-btn" data-phone-close title="나란히 끄기" aria-label="나란히 끄기">✕</button></div>
+      <div class="phone-shell"><iframe title="휴대폰 화면 편집기"></iframe></div>
+    </aside>
+    <aside class="inspector" aria-label="설정">
+      <div class="insp-top">
+        <h2 class="panel-title">설정</h2>
+        <button class="insp-toggle" id="btn-insp" title="설정 칸 접기" aria-expanded="true" aria-controls="inspector-body">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg><span>설정</span>
+        </button>
+      </div>
+      <div id="inspector-body"></div>
+    </aside>
+  </main>
+
+  <!-- 알림 -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- 휴대폰 안내 -->
+  <div class="mobile-guard">
+    <img src="assets/hometeo-symbol.svg" alt="" width="80" height="80">
+    <strong>홈터는 PC에서 이용해주세요</strong>
+    <span>끌어다 놓기는 넓은 화면에서 훨씬 편해요.<br>휴대폰에서 어떻게 보이는지는 PC의 미리보기로 확인할 수 있어요.</span>
+  </div>
+
+  <script src="js/theme.js"></script>
+  <script src="js/ui-kit.js"></script>
+  <script src="js/blocks.js"></script>
+  <script src="js/templates.js"></script>
+  <script src="js/page-templates.js"></script>
+  <script src="js/block-styles.js"></script>
+  <script src="js/page-export.js"></script>
+  <script src="js/site-build.js"></script>
+  <script src="js/admin-ui.js"></script>
+  <script src="js/qrcode.js"></script>
+  <script src="js/admin-template.js"></script>
+  <script src="js/history.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/zip.js"></script>
+  <!-- 편집 화면 동작: 12개 파일을 차례대로 (js/app/01-core.js 머리말 참고) -->
+  <script src="js/app/01-core.js"></script>
+  <script src="js/app/02-picker.js"></script>
+  <script src="js/app/03-theme-info.js"></script>
+  <script src="js/app/04-admin-guide.js"></script>
+  <script src="js/app/05-side-by-side.js"></script>
+  <script src="js/app/06-inspector.js"></script>
+  <script src="js/app/07-pages-map.js"></script>
+  <script src="js/app/08-edit-media.js"></script>
+  <script src="js/app/09-save-export.js"></script>
+  <script src="js/app/10-start-guide.js"></script>
+  <script src="js/app/11-resize-drag.js"></script>
+  <script src="js/app/12-events-start.js"></script>
+</body>
+</html>
